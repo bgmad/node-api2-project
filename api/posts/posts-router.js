@@ -96,8 +96,25 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', (req, res) => {
-    
+// curl -d '{"title": "This the title of this post", "contents": "this is the contents of the post"}' -H 'Content-Type: application/json' -X PUT http://localhost:5000/api/posts/:id
+router.put('/:id', async (req, res) => {
+    const id = req.params.id;
+    const post = req.body;
+    if (!post.title || !post.contents) {
+        res.status(400).json({ errorMessage: "Please provide title and contents for the post." });
+    } else {
+        try {
+            const oldPost = await Post.findById(id);
+            if (oldPost.length === 0) res.status(404).json({ message: "The post with the specified ID does not exist." });
+            else {
+                const updatePost = await Post.update(id, post);
+                const newPost = await Post.findById(id);
+                res.status(201).json(newPost);
+            }
+        } catch (err) {
+            res.status(500).json({ error: "The comments information could not be retrieved." });
+        }
+    }
 });
 
 module.exports = router;

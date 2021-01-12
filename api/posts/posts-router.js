@@ -66,6 +66,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// curl -X GET http://localhost:5000/api/posts/:id/comments
 router.get('/:id/comments', async (req, res) => {
     const id = req.params.id;
     try {
@@ -80,10 +81,23 @@ router.get('/:id/comments', async (req, res) => {
     }
 });
 
-router.delete('/:id', (req, res) => {
+// curl -X DELETE http://localhost:5000/api/posts/:id
+router.delete('/:id', async (req, res) => {
+    const id = req.params.id;
+    try {
+        const post = await Post.findById(id);
+        if (post.length === 0) res.status(404).json({ message: "The post with the specified ID does not exist." });
+        else {
+            const deleted = await Post.remove(id);
+            res.status(204).end();
+        }
+    } catch (err) {
+        res.status(500).json({ error: "The comments information could not be retrieved." });
+    }
 });
 
 router.put('/:id', (req, res) => {
+    
 });
 
 module.exports = router;
